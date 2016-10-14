@@ -77,6 +77,7 @@ typedef void (^_FDViewControllerWillAppearInjectBlock)(UIViewController *viewCon
 
 @implementation UIViewController (FDFullscreenPopGesturePrivate)
 
+///hookviewWillAppear
 + (void)load
 {
     static dispatch_once_t onceToken;
@@ -98,6 +99,7 @@ typedef void (^_FDViewControllerWillAppearInjectBlock)(UIViewController *viewCon
     });
 }
 
+///viewWillAppear 额外执行fd_willAppearInjectBlock
 - (void)fd_viewWillAppear:(BOOL)animated
 {
     // Forward to primary implementation.
@@ -122,6 +124,7 @@ typedef void (^_FDViewControllerWillAppearInjectBlock)(UIViewController *viewCon
 
 @implementation UINavigationController (FDFullscreenPopGesture)
 
+///hook @selector(pushViewController:animated:);
 + (void)load
 {
     // Inject "-pushViewController:animated:"
@@ -143,6 +146,7 @@ typedef void (^_FDViewControllerWillAppearInjectBlock)(UIViewController *viewCon
         }
     });
 }
+
 
 - (void)fd_pushViewController:(UIViewController *)viewController animated:(BOOL)animated
 {
@@ -171,6 +175,7 @@ typedef void (^_FDViewControllerWillAppearInjectBlock)(UIViewController *viewCon
     }
 }
 
+///设置fd_willAppearInjectBlock
 - (void)fd_setupViewControllerBasedNavigationBarAppearanceIfNeeded:(UIViewController *)appearingViewController
 {
     if (!self.fd_viewControllerBasedNavigationBarAppearanceEnabled) {
@@ -195,6 +200,7 @@ typedef void (^_FDViewControllerWillAppearInjectBlock)(UIViewController *viewCon
     }
 }
 
+///创建_FDFullscreenPopGestureRecognizerDelegate对象
 - (_FDFullscreenPopGestureRecognizerDelegate *)fd_popGestureRecognizerDelegate
 {
     _FDFullscreenPopGestureRecognizerDelegate *delegate = objc_getAssociatedObject(self, _cmd);
@@ -208,6 +214,7 @@ typedef void (^_FDViewControllerWillAppearInjectBlock)(UIViewController *viewCon
     return delegate;
 }
 
+///创建手势
 - (UIPanGestureRecognizer *)fd_fullscreenPopGestureRecognizer
 {
     UIPanGestureRecognizer *panGestureRecognizer = objc_getAssociatedObject(self, _cmd);
@@ -221,6 +228,7 @@ typedef void (^_FDViewControllerWillAppearInjectBlock)(UIViewController *viewCon
     return panGestureRecognizer;
 }
 
+///是否需要根据fd_prefersNavigationBarHidden属性设置导航栏隐藏或者显示 默认YES
 - (BOOL)fd_viewControllerBasedNavigationBarAppearanceEnabled
 {
     NSNumber *number = objc_getAssociatedObject(self, _cmd);
@@ -261,7 +269,7 @@ typedef void (^_FDViewControllerWillAppearInjectBlock)(UIViewController *viewCon
     objc_setAssociatedObject(self, @selector(fd_prefersNavigationBarHidden), @(hidden), OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 }
 
-
+///手势起点距离屏幕左边的最远距离
 - (CGFloat)fd_interactivePopMaxAllowedInitialDistanceToLeftEdge
 {
 #if CGFLOAT_IS_DOUBLE
